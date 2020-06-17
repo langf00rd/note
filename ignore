@@ -1,0 +1,41 @@
+
+
+   <?php
+   if (isset($_POST['submit'])) {
+        if (getimagesize($_FILES['image']['tmp_name'])==FALSE) {
+         echo "failed";
+        } else {
+         $name = addslashes($_FILES['image']['tmp_name']);
+         $image = base64_encode(file_get_contents(addslashes($_FILES['image']['tmp_name'])));
+         saveImage($name, $image);
+        }
+   }
+
+   function saveImage($description, $image) {
+        $description = $_POST['description'];
+        $conn = mysqli_connect('localhost', 'root', '', 'notes');
+        $sql = "INSERT INTO data (image, description) VALUES ('$image', '$description')";
+        $query = mysqli_query($conn, $sql);
+
+        if ($query) {
+           echo "Sent Successfully";
+        } else {
+         echo "Did not send file";
+        }
+   }
+   display();
+
+   function display() {
+        $conn = mysqli_connect('localhost', 'root', '', 'notes');
+        $sql = "SELECT * FROM data";
+        $query = mysqli_query($conn, $sql);
+        $num = mysqli_num_rows($query);
+
+        for ($key=0; $key < $num; $key++) {
+            $result = mysqli_fetch_array($query);
+            $img = $result['image'];
+            echo '<img class="images" src="data:image;base64,' .$img. '">';
+            echo $result['description'];
+        }
+      }
+?>
